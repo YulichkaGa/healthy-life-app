@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:5000/api'
+const BASE = '/api'
 
 function token() {
   return localStorage.getItem('token')
@@ -27,13 +27,16 @@ export const api = {
   nutrition: {
     getMeals: (date) => req('GET', `/nutrition/meals${date ? `?date=${date}` : ''}`),
     addMeal: (body) => req('POST', '/nutrition/meals', body),
+    deleteMeal: (id) => req('DELETE', `/nutrition/meals/${id}`),
     analyze: (image) => req('POST', '/nutrition/analyze', { image }),
     search: (q) => req('GET', `/nutrition/search?q=${encodeURIComponent(q)}`),
   },
   fitness: {
     getWorkouts: (date) => req('GET', `/fitness/workouts${date ? `?date=${date}` : ''}`),
     addWorkout: (body) => req('POST', '/fitness/workouts', body),
+    deleteWorkout: (id) => req('DELETE', `/fitness/workouts/${id}`),
     updateSteps: (steps) => req('PATCH', '/fitness/steps', { steps }),
+    updateWater: (glasses) => req('PATCH', '/fitness/water', { glasses }),
   },
   sleep: {
     log: (body) => req('POST', '/sleep/log', body),

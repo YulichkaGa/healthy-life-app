@@ -23,15 +23,13 @@ export default function Layout({ children }) {
     <div className="app-layout">
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <span className="logo-icon">🌿</span>
+          <div className="logo-icon">🌿</div>
           <span className="logo-text">HealthyLife</span>
         </div>
         <nav className="sidebar-nav">
           {NAV.map(({ to, icon, label }) => (
             <NavLink
-              key={to}
-              to={to}
-              end={to === '/'}
+              key={to} to={to} end={to === '/'}
               className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
             >
               <span className="nav-icon">{icon}</span>
@@ -44,9 +42,7 @@ export default function Layout({ children }) {
             <div className="user-avatar">{user?.name?.[0]?.toUpperCase()}</div>
             <span className="user-name">{user?.name}</span>
           </div>
-          <button className="logout-btn" onClick={handleLogout} title="יציאה">
-            ⬅️
-          </button>
+          <button className="logout-btn" onClick={handleLogout} title="יציאה">⬅️</button>
         </div>
       </aside>
       <main className="main-content">{children}</main>
