@@ -1,0 +1,5 @@
+const { Client } = require('pg')
+const c = new Client({ host: 'localhost', port: 5432, user: 'postgres', password: '1234', database: 'postgres' })
+c.connect()
+  .then(() => { console.log('connected ok'); return c.end() })
+  .catch(e => { console.error('FAILED:', e.message, e.code) })
