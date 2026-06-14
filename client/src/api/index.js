@@ -65,4 +65,11 @@ export const api = {
   export: {
     get: () => req('GET', '/export'),
   },
+  weight: {
+    history:       ()     => req('GET',    '/weight/history'),
+    log:           (body) => req('POST',   '/weight/log', body),
+    delete:        (id)   => req('DELETE', `/weight/${id}`),
+    getProfile:    ()     => req('GET',    '/weight/profile'),
+    updateProfile: (body) => req('PUT',    '/weight/profile', body),
+  },
 }

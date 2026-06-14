@@ -13,6 +13,7 @@ const todosRoutes     = require('./routes/todos')
 const goalsRoutes        = require('./routes/goals')
 const achievementsRoutes = require('./routes/achievements')
 const exportRoutes       = require('./routes/export')
+const weightRoutes       = require('./routes/weight')
 
 const app = express()
 
@@ -33,6 +34,7 @@ app.use('/api',           todosRoutes)
 app.use('/api/goals',        goalsRoutes)
 app.use('/api/achievements', achievementsRoutes)
 app.use('/api/export',       exportRoutes)
+app.use('/api/weight',       weightRoutes)
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }))
 

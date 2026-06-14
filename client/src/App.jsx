@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import LoginPage from './pages/LoginPage'
@@ -13,9 +14,11 @@ import AIChatPage from './pages/AIChatPage'
 import TodoPage from './pages/TodoPage'
 import SettingsPage from './pages/SettingsPage'
 import AchievementsPage from './pages/AchievementsPage'
+import WeightPage from './pages/WeightPage'
 
 function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <BrowserRouter>
         <Routes>
@@ -34,6 +37,7 @@ function App() {
                   <Route path="/todos" element={<TodoPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/achievements" element={<AchievementsPage />} />
+                  <Route path="/weight" element={<WeightPage />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Layout>
@@ -42,6 +46,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </ThemeProvider>
   )
 }
 

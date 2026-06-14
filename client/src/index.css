@@ -37,6 +37,23 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+body.dark {
+  --bg:           #0f172a;
+  --card:         #1e293b;
+  --border:       #334155;
+  --border-light: #1e293b;
+  --text:         #f1f5f9;
+  --text-muted:   #94a3b8;
+  --text-light:   #475569;
+  --sidebar-bg:   #020617;
+  --green-pale:   #052e16;
+  --green-light:  #14532d;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,.3);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.4), 0 2px 6px rgba(0,0,0,.3);
+  --shadow:    0 2px 8px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,.5), 0 12px 32px rgba(0,0,0,.4);
+}
+
 #root { min-height: 100vh; display: flex; }
 
 /* ── Layout ── */
@@ -494,6 +511,23 @@ body {
   display: flex; flex-direction: column; align-items: center; gap: 8px;
 }
 .empty-icon { font-size: 38px; opacity: .5; }
+
+/* ── Weight tracking ── */
+.weight-summary {
+  display: flex;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.weight-stat {
+  flex: 1;
+  padding: 18px 20px;
+  border-left: 1px solid var(--border);
+  text-align: center;
+}
+.weight-stat:last-child { border-left: none; }
+.weight-stat-val   { font-size: 26px; font-weight: 800; line-height: 1.1; }
+.weight-stat-label { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
 
 /* ── Achievements ── */
 .achieve-progress-wrap { padding: 16px 20px; }
