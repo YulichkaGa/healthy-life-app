@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 
@@ -43,10 +43,10 @@ export default function Layout({ children }) {
           ))}
         </nav>
         <div className="sidebar-footer">
-          <div className="user-info">
+          <Link to="/profile" className="user-info" style={{ textDecoration: 'none' }}>
             <div className="user-avatar">{user?.name?.[0]?.toUpperCase()}</div>
             <span className="user-name">{user?.name}</span>
-          </div>
+          </Link>
           <div style={{ display: 'flex', gap: 4 }}>
             <button className="logout-btn" onClick={toggle} title={dark ? 'מצב בהיר' : 'מצב כהה'}>
               {dark ? '☀️' : '🌙'}

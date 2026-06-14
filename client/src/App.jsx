@@ -15,6 +15,7 @@ import TodoPage from './pages/TodoPage'
 import SettingsPage from './pages/SettingsPage'
 import AchievementsPage from './pages/AchievementsPage'
 import WeightPage from './pages/WeightPage'
+import ProfilePage from './pages/ProfilePage'
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/achievements" element={<AchievementsPage />} />
                   <Route path="/weight" element={<WeightPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Layout>

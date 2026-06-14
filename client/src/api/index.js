@@ -20,9 +20,11 @@ async function req(method, path, body) {
 
 export const api = {
   auth: {
-    register: (body) => req('POST', '/auth/register', body),
-    login: (body) => req('POST', '/auth/login', body),
-    me: () => req('GET', '/auth/me'),
+    register:        (body) => req('POST', '/auth/register', body),
+    login:           (body) => req('POST', '/auth/login', body),
+    me:              ()     => req('GET',  '/auth/me'),
+    updateProfile:   (body) => req('PUT',  '/auth/profile', body),
+    updatePassword:  (body) => req('PUT',  '/auth/password', body),
   },
   nutrition: {
     getMeals: (date) => req('GET', `/nutrition/meals${date ? `?date=${date}` : ''}`),
