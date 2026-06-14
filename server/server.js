@@ -9,6 +9,7 @@ const sleepRoutes     = require('./routes/sleep')
 const moodRoutes      = require('./routes/mood')
 const aiRoutes        = require('./routes/ai')
 const dashboardRoutes = require('./routes/dashboard')
+const todosRoutes     = require('./routes/todos')
 
 const app = express()
 
@@ -25,6 +26,7 @@ app.use('/api/sleep',     sleepRoutes)
 app.use('/api/mood',      moodRoutes)
 app.use('/api/ai',        aiRoutes)
 app.use('/api/dashboard', dashboardRoutes)
+app.use('/api',           todosRoutes)
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }))
 

@@ -30,7 +30,12 @@ export default function NutritionPage() {
   useEffect(() => { load() }, [])
 
   async function load() {
-    try { setMeals(await api.nutrition.getMeals()) } catch {}
+    try {
+      setMeals(await api.nutrition.getMeals())
+    } catch (err) {
+      console.error('Failed to load meals:', err)
+      setError('שגיאה בטעינת הארוחות. אנא רענן את הדף.')
+    }
   }
 
   async function handleSubmit(e) {
@@ -58,8 +63,11 @@ export default function NutritionPage() {
   async function handleDelete(id) {
     try {
       await api.nutrition.deleteMeal(id)
-      setMeals(ms => ms.filter(m => m.id !== id))
-    } catch {}
+      setMeals(meals => meals.filter(meal => meal.id !== id))
+    } catch (err) {
+      console.error('Failed to delete meal:', err)
+      setError('שגיאה בהסרת הארוחה. אנא נסה שוב.')
+    }
   }
 
   async function handleAnalyze(e) {
@@ -81,24 +89,31 @@ export default function NutritionPage() {
             carbs: String(result.carbs),
             fat: String(result.fat),
           }))
-        } catch {
-          setError('שגיאה בניתוח התמונה')
-        } finally {
+          setAnalyzing(false)
+        } catch (err) {
+          console.error('Failed to analyze image:', err)
+          setError('שגיאה בניתוח התמונה. אנא נסה בתמונה אחרת.')
           setAnalyzing(false)
         }
       }
+      reader.onerror = () => {
+        console.error('Failed to read file')
+        setError('שגיאה בקריאת הקובץ. אנא נסה שוב.')
+        setAnalyzing(false)
+      }
       reader.readAsDataURL(file)
-    } catch {
-      setError('שגיאה בניתוח התמונה')
+    } catch (err) {
+      console.error('Failed to start image analysis:', err)
+      setError('שגיאה בניתוח התמונה. אנא נסה שוב.')
       setAnalyzing(false)
     }
   }
 
   const totals = meals.reduce(
-    (acc, m) => ({
-      calories: acc.calories + Number(m.calories || 0),
-      protein:  acc.protein  + Number(m.protein  || 0),
-      carbs:    acc.carbs    + Number(m.carbs    || 0),
+    (accumulator, meal) => ({
+      calories: accumulator.calories + Number(meal.calories || 0),
+      protein:  accumulator.protein  + Number(meal.protein  || 0),
+      carbs:    accumulator.carbs    + Number(meal.carbs    || 0),
     }),
     { calories: 0, protein: 0, carbs: 0 }
   )
@@ -178,20 +193,20 @@ export default function NutritionPage() {
             </div>
           ) : (
             <div className="meal-list">
-              {meals.map(m => (
-                <div key={m.id} className="meal-item">
+              {meals.map(meal => (
+                <div key={meal.id} className="meal-item">
                   <div className="meal-top">
                     <div className="meal-info">
-                      <strong>{m.name}</strong>
-                      <span className="meal-type-tag">{m.meal_type}</span>
+                      <strong>{meal.name}</strong>
+                      <span className="meal-type-tag">{meal.meal_type}</span>
                     </div>
-                    <button className="btn-danger" onClick={() => handleDelete(m.id)} title="מחק">✕</button>
+                    <button className="btn-danger" onClick={() => handleDelete(meal.id)} title="מחק">✕</button>
                   </div>
                   <div className="meal-macros">
-                    <span>🔥 {m.calories}</span>
-                    <span>🥩 {m.protein}g</span>
-                    <span>🌾 {m.carbs}g</span>
-                    <span>🧈 {m.fat}g</span>
+                    <span>🔥 {meal.calories}</span>
+                    <span>🥩 {meal.protein}g</span>
+                    <span>🌾 {meal.carbs}g</span>
+                    <span>🧈 {meal.fat}g</span>
                   </div>
                 </div>
               ))}

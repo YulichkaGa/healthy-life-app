@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
+import { dayLabel } from '../utils/dateUtils'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine,
 } from 'recharts'
@@ -17,10 +18,6 @@ function calcDuration(bed, wake) {
 
 const EMPTY = { bedtime: '23:00', wake_time: '07:00', duration: 8, quality: 4, notes: '' }
 
-function dayLabel(dateStr) {
-  return new Date(dateStr).toLocaleDateString('he-IL', { day: 'numeric', month: 'short' })
-}
-
 export default function SleepPage() {
   const [history, setHistory] = useState([])
   const [form, setForm]       = useState(EMPTY)
@@ -30,7 +27,12 @@ export default function SleepPage() {
   useEffect(() => { load() }, [])
 
   async function load() {
-    try { setHistory(await api.sleep.history()) } catch {}
+    try {
+      setHistory(await api.sleep.history())
+    } catch (err) {
+      console.error('Failed to load sleep history:', err)
+      setError('שגיאה בטעינת היסטוריית השינה. אנא רענן את הדף.')
+    }
   }
 
   function setTime(field, val) {
@@ -60,12 +62,12 @@ export default function SleepPage() {
   }
 
   const avg = history.length
-    ? (history.reduce((s, h) => s + (Number(h.duration) || 0), 0) / history.length).toFixed(1)
+    ? (history.reduce((sum, historyItem) => sum + (Number(historyItem.duration) || 0), 0) / history.length).toFixed(1)
     : 0
 
-  const chartData = [...history].reverse().slice(-7).map(h => ({
-    date: dayLabel(h.sleep_date),
-    שינה: Number(h.duration) || 0,
+  const chartData = [...history].reverse().slice(-7).map(historyItem => ({
+    date: dayLabel(historyItem.sleep_date),
+    duration: Number(historyItem.duration) || 0,
   }))
 
   return (
@@ -135,7 +137,7 @@ export default function SleepPage() {
                   <YAxis domain={[0, 10]} tick={{ fontSize: 11 }} />
                   <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }} />
                   <ReferenceLine y={8} stroke="#6366f1" strokeDasharray="4 2" strokeWidth={1.5} label={{ value: 'יעד 8ש', position: 'right', fontSize: 10, fill: '#6366f1' }} />
-                  <Bar dataKey="שינה" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="duration" fill="#6366f1" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

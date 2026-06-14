@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
+import { dayLabel } from '../utils/dateUtils'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine,
 } from 'recharts'
@@ -12,16 +13,12 @@ const MOODS = [
   { val: 5, emoji: '😄', label: 'מעולה' },
 ]
 
-function dayLabel(dateStr) {
-  return new Date(dateStr).toLocaleDateString('he-IL', { day: 'numeric', month: 'short' })
-}
-
 function MoodTooltip({ active, payload }) {
   if (!active || !payload?.length) return null
-  const m = MOODS.find(x => x.val === payload[0].value)
+  const moodItem = MOODS.find(x => x.val === payload[0].value)
   return (
     <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: 8, padding: '6px 12px', fontSize: 12 }}>
-      {payload[0].payload.date} — {m?.emoji} {m?.label}
+      {payload[0].payload.date} — {moodItem?.emoji} {moodItem?.label}
     </div>
   )
 }
@@ -35,7 +32,11 @@ export default function MoodPage() {
   useEffect(() => { load() }, [])
 
   async function load() {
-    try { setHistory(await api.mood.history()) } catch {}
+    try {
+      setHistory(await api.mood.history())
+    } catch (err) {
+      console.error('Failed to load mood history:', err)
+    }
   }
 
   async function handleSave() {
@@ -46,17 +47,20 @@ export default function MoodPage() {
       await api.mood.log(selected)
       setSaved(true)
       load()
-    } catch {}
-    setLoading(false)
+    } catch (err) {
+      console.error('Failed to save mood:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const avg = history.length
-    ? (history.reduce((s, h) => s + (h.mood || 0), 0) / history.length).toFixed(1)
+    ? (history.reduce((sum, historyItem) => sum + (historyItem.mood || 0), 0) / history.length).toFixed(1)
     : 0
 
-  const chartData = [...history].reverse().slice(-14).map(h => ({
-    date: dayLabel(h.log_date),
-    מצב: h.mood,
+  const chartData = [...history].reverse().slice(-14).map(historyItem => ({
+    date: dayLabel(historyItem.log_date),
+    mood: historyItem.mood,
   }))
 
   return (
@@ -73,14 +77,14 @@ export default function MoodPage() {
         <div className="card">
           <h3>איך אתה מרגיש היום?</h3>
           <div className="mood-grid">
-            {MOODS.map(m => (
+            {MOODS.map(mood => (
               <button
-                key={m.val} type="button"
-                className={`mood-btn${selected === m.val ? ' selected' : ''}`}
-                onClick={() => { setSelected(m.val); setSaved(false) }}
+                key={mood.val} type="button"
+                className={`mood-btn${selected === mood.val ? ' selected' : ''}`}
+                onClick={() => { setSelected(mood.val); setSaved(false) }}
               >
-                <span className="mood-emoji">{m.emoji}</span>
-                <span className="mood-label">{m.label}</span>
+                <span className="mood-emoji">{mood.emoji}</span>
+                <span className="mood-label">{mood.label}</span>
               </button>
             ))}
           </div>
@@ -101,7 +105,7 @@ export default function MoodPage() {
                   <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fontSize: 11 }} />
                   <Tooltip content={<MoodTooltip />} />
                   <ReferenceLine y={3} stroke="#e2e8f0" strokeDasharray="4 2" />
-                  <Line type="monotone" dataKey="מצב" stroke="#ec4899" strokeWidth={2.5} dot={{ r: 4, fill: '#ec4899' }} />
+                  <Line type="monotone" dataKey="mood" stroke="#ec4899" strokeWidth={2.5} dot={{ r: 4, fill: '#ec4899' }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -116,12 +120,12 @@ export default function MoodPage() {
               </div>
             ) : (
               <div className="mood-history">
-                {history.map((h, i) => {
-                  const m = MOODS.find(x => x.val === h.mood)
+                {history.map((historyItem, index) => {
+                  const moodItem = MOODS.find(x => x.val === historyItem.mood)
                   return (
-                    <div key={i} className="mood-history-item">
-                      <span className="mood-history-date">{new Date(h.log_date).toLocaleDateString('he-IL', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
-                      <span className="mood-history-val">{m?.emoji} {m?.label}</span>
+                    <div key={index} className="mood-history-item">
+                      <span className="mood-history-date">{new Date(historyItem.log_date).toLocaleDateString('he-IL', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                      <span className="mood-history-val">{moodItem?.emoji} {moodItem?.label}</span>
                     </div>
                   )
                 })}

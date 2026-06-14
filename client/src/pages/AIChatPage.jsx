@@ -27,8 +27,8 @@ export default function AIChatPage() {
       const history = [...messages, userMsg].slice(1).map(m => ({ role: m.role, content: m.content }))
       const { message } = await api.ai.chat(history)
       setMessages(m => [...m, { role: 'assistant', content: message }])
-    } catch {
-      setMessages(m => [...m, { role: 'assistant', content: 'מצטער, הייתה שגיאה. נסה שוב.' }])
+    } catch (err) {
+      setMessages(m => [...m, { role: 'assistant', content: err.message || 'מצטער, הייתה שגיאה. נסה שוב.' }])
     } finally {
       setLoading(false)
     }

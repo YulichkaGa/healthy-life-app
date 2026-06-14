@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
 import { useAuth } from '../context/AuthContext'
+import { dayLabel } from '../utils/dateUtils'
 import {
   AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -44,10 +45,6 @@ function StatCard({ icon, label, value, unit, max, color, goal }) {
   )
 }
 
-function dayLabel(dateStr) {
-  return new Date(dateStr).toLocaleDateString('he-IL', { weekday: 'short' })
-}
-
 export default function DashboardPage() {
   const { user } = useAuth()
   const [data, setData] = useState(null)
@@ -67,12 +64,12 @@ export default function DashboardPage() {
       if (s.status === 'fulfilled')   setStreak(s.value.streak)
       if (ins.status === 'fulfilled') setInsight(ins.value.insight)
       if (w.status === 'fulfilled')
-        setWeekly(w.value.map(r => ({
-          day: dayLabel(r.log_date),
-          קלוריות: Number(r.calories) || 0,
-          חלבון:   Number(r.protein)  || 0,
-          צעדים:   Number(r.steps)    || 0,
-          מים:     Number(r.water)    || 0,
+        setWeekly(w.value.map(record => ({
+          day: dayLabel(record.log_date),
+          calories: Number(record.calories) || 0,
+          protein:  Number(record.protein)  || 0,
+          steps:    Number(record.steps)    || 0,
+          water:    Number(record.water)    || 0,
         })))
     }).finally(() => setLoading(false))
   }, [])
@@ -120,8 +117,8 @@ export default function DashboardPage() {
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Area type="monotone" dataKey="קלוריות" stroke="#f97316" fill="url(#gCal)" strokeWidth={2} dot={false} />
-              <Area type="monotone" dataKey="חלבון"   stroke="#a855f7" fill="url(#gProt)" strokeWidth={2} dot={false} />
+              <Area type="monotone" dataKey="calories" name="קלוריות" stroke="#f97316" fill="url(#gCal)" strokeWidth={2} dot={false} />
+              <Area type="monotone" dataKey="protein"  name="חלבון"   stroke="#a855f7" fill="url(#gProt)" strokeWidth={2} dot={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -138,8 +135,8 @@ export default function DashboardPage() {
               <YAxis yAxisId="water" orientation="left" tick={{ fontSize: 11 }} hide />
               <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Bar yAxisId="steps" dataKey="צעדים" fill="#22c55e" radius={[4, 4, 0, 0]} />
-              <Bar yAxisId="water" dataKey="מים"   fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar yAxisId="steps" dataKey="steps" fill="#22c55e" radius={[4, 4, 0, 0]} />
+              <Bar yAxisId="water" dataKey="water"   fill="#3b82f6" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -161,13 +158,13 @@ export default function DashboardPage() {
             <div className="card">
               <h3>🍽 ארוחות היום</h3>
               <div className="item-list">
-                {data.meals.map(m => (
-                  <div key={m.id} className="item-row">
+                {data.meals.map(meal => (
+                  <div key={meal.id} className="item-row">
                     <div>
-                      <div className="item-name">{m.name}</div>
-                      <div className="item-meta">{m.meal_type}</div>
+                      <div className="item-name">{meal.name}</div>
+                      <div className="item-meta">{meal.meal_type}</div>
                     </div>
-                    <span className="item-tag orange">{m.calories} קק״ל</span>
+                    <span className="item-tag orange">{meal.calories} קק״ל</span>
                   </div>
                 ))}
               </div>
@@ -177,13 +174,13 @@ export default function DashboardPage() {
             <div className="card">
               <h3>💪 אימונים היום</h3>
               <div className="item-list">
-                {data.workouts.map(w => (
-                  <div key={w.id} className="item-row">
+                {data.workouts.map(workout => (
+                  <div key={workout.id} className="item-row">
                     <div>
-                      <div className="item-name">{w.name}</div>
-                      <div className="item-meta">{w.duration} דקות</div>
+                      <div className="item-name">{workout.name}</div>
+                      <div className="item-meta">{workout.duration} דקות</div>
                     </div>
-                    <span className="item-tag green">{w.calories} קק״ל</span>
+                    <span className="item-tag green">{workout.calories} קק״ל</span>
                   </div>
                 ))}
               </div>

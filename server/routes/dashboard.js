@@ -21,7 +21,7 @@ router.get('/weekly', auth, async (req, res, next) => {
     try {
         const result = await query(
             `SELECT log_date, calories, protein, water, steps, sleep_hours, mood
-       FROM daily_logs WHERE user_id=$1 AND log_date >= CURRENT_DATE - INTERVAL '7 days'
+       FROM daily_logs WHERE user_id=$1 AND log_date >= date('now', '-7 days')
        ORDER BY log_date`,
             [req.user.id]
         )

@@ -18,13 +18,16 @@ export default function FitnessPage() {
 
   async function loadAll() {
     try {
-      const [ws, today] = await Promise.all([api.fitness.getWorkouts(), api.dashboard.today()])
-      setWorkouts(ws)
-      const s = today.steps || 0
-      setSavedSteps(s)
-      setSteps(s ? String(s) : '')
-      setWater(today.water || 0)
-    } catch {}
+      const [workoutsData, todayData] = await Promise.all([api.fitness.getWorkouts(), api.dashboard.today()])
+      setWorkouts(workoutsData)
+      const savedStepsValue = todayData.steps || 0
+      setSavedSteps(savedStepsValue)
+      setSteps(savedStepsValue ? String(savedStepsValue) : '')
+      setWater(todayData.water || 0)
+    } catch (err) {
+      console.error('Failed to load fitness data:', err)
+      setError('שגיאה בטעינת נתונים. אנא רענן את הדף.')
+    }
   }
 
   async function handleSubmit(e) {
@@ -49,28 +52,42 @@ export default function FitnessPage() {
   async function handleDelete(id) {
     try {
       await api.fitness.deleteWorkout(id)
-      setWorkouts(ws => ws.filter(w => w.id !== id))
-    } catch {}
+      setWorkouts(workouts => workouts.filter(workout => workout.id !== id))
+    } catch (err) {
+      console.error('Failed to delete workout:', err)
+      setError('שגיאה בהסרת האימון. אנא נסה שוב.')
+    }
   }
 
   async function handleSteps(e) {
     e.preventDefault()
     setStepsLoading(true)
+    setError('')
     try {
-      const { steps: s } = await api.fitness.updateSteps(Number(steps))
-      setSavedSteps(s)
-    } catch {}
-    setStepsLoading(false)
+      const { steps: savedStepsValue } = await api.fitness.updateSteps(Number(steps))
+      setSavedSteps(savedStepsValue)
+    } catch (err) {
+      console.error('Failed to update steps:', err)
+      setError('שגיאה בשמירת הצעדים. אנא נסה שוב.')
+    } finally {
+      setStepsLoading(false)
+    }
   }
 
-  async function handleWater(n) {
-    const val = water === n ? n - 1 : n
-    setWater(Math.max(0, val))
-    try { await api.fitness.updateWater(Math.max(0, val)) } catch {}
+  async function handleWater(amount) {
+    const newWaterValue = water === amount ? amount - 1 : amount
+    const finalWaterValue = Math.max(0, newWaterValue)
+    setWater(finalWaterValue)
+    try {
+      await api.fitness.updateWater(finalWaterValue)
+    } catch (err) {
+      console.error('Failed to update water:', err)
+      setError('שגיאה בעדכון מעקב המים. אנא נסה שוב.')
+    }
   }
 
-  const totalCal = workouts.reduce((s, w) => s + (Number(w.calories) || 0), 0)
-  const totalMin = workouts.reduce((s, w) => s + (Number(w.duration) || 0), 0)
+  const totalCalories = workouts.reduce((sum, workout) => sum + (Number(workout.calories) || 0), 0)
+  const totalMinutes = workouts.reduce((sum, workout) => sum + (Number(workout.duration) || 0), 0)
 
   return (
     <div className="page">
@@ -80,8 +97,8 @@ export default function FitnessPage() {
           <p className="page-subtitle">עקוב אחרי הפעילות היומית שלך</p>
         </div>
         <div className="totals-row">
-          {totalMin > 0 && <span className="badge green">⏱ {totalMin} דקות</span>}
-          {totalCal > 0 && <span className="badge orange">🔥 {totalCal} קק״ל</span>}
+          {totalMinutes > 0 && <span className="badge green">⏱ {totalMinutes} דקות</span>}
+          {totalCalories > 0 && <span className="badge orange">🔥 {totalCalories} קק״ל</span>}
         </div>
       </div>
 

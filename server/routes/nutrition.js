@@ -40,18 +40,18 @@ router.get('/meals', auth, async (req, res, next) => {
 
 router.delete('/meals/:id', auth, async (req, res, next) => {
     try {
-        const meal = await query('SELECT * FROM meals WHERE id=$1 AND user_id=$2', [req.params.id, req.user.id])
-        if (!meal.rows.length) return res.status(404).json({ message: 'לא נמצא' })
-        const m = meal.rows[0]
+        const mealResult = await query('SELECT * FROM meals WHERE id=$1 AND user_id=$2', [req.params.id, req.user.id])
+        if (!mealResult.rows.length) return res.status(404).json({ message: 'לא נמצא' })
+        const mealData = mealResult.rows[0]
         await query('DELETE FROM meals WHERE id=$1', [req.params.id])
         await query(
             `UPDATE daily_logs SET
-                calories = GREATEST(0, calories - $2),
-                protein  = GREATEST(0, protein  - $3),
-                carbs    = GREATEST(0, carbs    - $4),
-                fat      = GREATEST(0, fat      - $5)
+                calories = MAX(0, calories - $2),
+                protein  = MAX(0, protein  - $3),
+                carbs    = MAX(0, carbs    - $4),
+                fat      = MAX(0, fat      - $5)
              WHERE user_id=$1 AND log_date=$6`,
-            [req.user.id, m.calories, m.protein, m.carbs, m.fat, m.log_date]
+            [req.user.id, mealData.calories, mealData.protein, mealData.carbs, mealData.fat, mealData.log_date]
         )
         res.json({ ok: true })
     } catch (err) { next(err) }
@@ -60,6 +60,8 @@ router.delete('/meals/:id', auth, async (req, res, next) => {
 router.post('/analyze', auth, async (req, res, next) => {
     try {
         const { image } = req.body
+        if (!image) return res.status(400).json({ message: 'התמונה נדרשת' })
+        
         const response = await claude.messages.create({
             model: 'claude-sonnet-4-6',
             max_tokens: 500,
@@ -71,9 +73,20 @@ router.post('/analyze', auth, async (req, res, next) => {
                 ]
             }]
         })
-        const text = response.content[0].text.replace(/```json|```/g, '').trim()
+        
+        if (!response.content || !Array.isArray(response.content) || response.content.length === 0) {
+            return res.status(422).json({ message: 'תשובה לא חוקית מ-AI' })
+        }
+        
+        const firstContent = response.content[0]
+        if (!firstContent.text) {
+            return res.status(422).json({ message: 'לא ניתן לקבל תשובה מ-AI' })
+        }
+        
+        const text = firstContent.text.replace(/```json|```/g, '').trim()
         try {
-            res.json(JSON.parse(text))
+            const parsedResult = JSON.parse(text)
+            res.json(parsedResult)
         } catch {
             res.status(422).json({ message: 'לא ניתן לפרסר את תשובת ה-AI' })
         }
