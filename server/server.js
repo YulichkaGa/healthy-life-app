@@ -14,6 +14,10 @@ const goalsRoutes        = require('./routes/goals')
 const achievementsRoutes = require('./routes/achievements')
 const exportRoutes       = require('./routes/export')
 const weightRoutes       = require('./routes/weight')
+const favoritesRoutes    = require('./routes/favorites')
+const habitsRoutes       = require('./routes/habits')
+const measurementsRoutes = require('./routes/measurements')
+const meditationRoutes   = require('./routes/meditation')
 
 const app = express()
 
@@ -35,6 +39,10 @@ app.use('/api/goals',        goalsRoutes)
 app.use('/api/achievements', achievementsRoutes)
 app.use('/api/export',       exportRoutes)
 app.use('/api/weight',       weightRoutes)
+app.use('/api/favorites',    favoritesRoutes)
+app.use('/api/habits',       habitsRoutes)
+app.use('/api/measurements', measurementsRoutes)
+app.use('/api/meditation',   meditationRoutes)
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }))
 

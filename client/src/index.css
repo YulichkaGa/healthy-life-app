@@ -693,6 +693,81 @@ body.dark .insight-card p { color: #a7f3d0; }
 .food-search-macros { font-size: 11.5px; color: var(--text-muted); }
 .food-search-note { padding: 5px 13px; font-size: 10.5px; color: var(--text-light); background: var(--border-light); text-align: center; }
 
+/* ── Habits ── */
+.habits-list { display: flex; flex-direction: column; gap: 10px; }
+.habit-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow-xs);
+  transition: border-color .15s, box-shadow .15s, opacity .2s;
+}
+.habit-card.done { border-color: var(--hcolor, #16a34a); background: color-mix(in srgb, var(--hcolor, #16a34a) 6%, var(--card)); }
+.habit-check {
+  width: 28px; height: 28px; flex-shrink: 0;
+  border-radius: 50%; border: 2.5px solid;
+  cursor: pointer; font-size: 14px; color: white; font-weight: 800;
+  transition: all .18s; display: flex; align-items: center; justify-content: center;
+}
+.habit-check:hover:not(:disabled) { transform: scale(1.15); }
+.habit-icon { font-size: 22px; flex-shrink: 0; }
+.habit-info { flex: 1; min-width: 0; }
+.habit-name  { font-size: 14px; font-weight: 700; }
+.habit-count { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+.habit-icon-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+.habit-icon-btn {
+  width: 38px; height: 38px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: var(--bg);
+  cursor: pointer; font-size: 20px; transition: all .15s;
+}
+.habit-icon-btn:hover  { border-color: var(--green); background: var(--green-pale); }
+.habit-icon-btn.selected { border-color: var(--green); background: var(--green-light); }
+.habit-color-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+.habit-color-btn { width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer; transition: transform .15s; }
+.habit-color-btn:hover { transform: scale(1.2); }
+
+/* ── Measurements ── */
+.measure-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+.measure-stat {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 14px 10px; background: var(--bg); border-radius: var(--radius);
+  border: 1px solid var(--border-light); text-align: center;
+}
+.measure-icon  { font-size: 20px; }
+.measure-val   { font-size: 20px; font-weight: 800; }
+.measure-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+.measure-history { display: flex; flex-direction: column; gap: 10px; }
+.measure-entry {
+  padding: 12px 14px; background: var(--bg);
+  border-radius: var(--radius-sm); border: 1px solid var(--border-light);
+}
+.measure-entry-date { font-size: 12.5px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: flex; align-items: center; }
+.measure-entry-values { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* ── Meditation ── */
+.meditation-timer {
+  background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+  border-radius: var(--radius-lg); padding: 24px;
+  text-align: center; margin-bottom: 4px;
+}
+body.dark .meditation-timer { background: linear-gradient(135deg, #1e1b4b, #312e81); }
+.timer-display {
+  font-size: 52px; font-weight: 900; letter-spacing: 2px;
+  color: #4f46e5; font-variant-numeric: tabular-nums;
+}
+body.dark .timer-display { color: #a5b4fc; }
+.meditation-types { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.meditation-type-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 14px 8px;
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: var(--radius); cursor: pointer; transition: all .15s;
+}
+.meditation-type-btn:hover { border-color: #6366f1; background: #eef2ff; }
+body.dark .meditation-type-btn:hover { background: #1e1b4b; }
+.meditation-type-btn.selected { border-color: #6366f1; background: #eef2ff; box-shadow: 0 0 0 3px rgba(99,102,241,.12); }
+body.dark .meditation-type-btn.selected { background: #1e1b4b; }
+
 /* ── Utilities ── */
 .mb { margin-bottom: 14px; }
 .mt { margin-top: 14px; }

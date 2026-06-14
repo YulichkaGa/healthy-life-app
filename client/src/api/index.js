@@ -67,6 +67,30 @@ export const api = {
   export: {
     get: () => req('GET', '/export'),
   },
+  favorites: {
+    get:    ()   => req('GET',    '/favorites'),
+    save:   (body) => req('POST', '/favorites', body),
+    delete: (id) => req('DELETE', `/favorites/${id}`),
+    log:    (id) => req('POST',   `/favorites/${id}/log`),
+  },
+  habits: {
+    get:     ()     => req('GET',    '/habits'),
+    create:  (body) => req('POST',   '/habits', body),
+    delete:  (id)   => req('DELETE', `/habits/${id}`),
+    toggle:  (id)   => req('POST',   `/habits/${id}/toggle`),
+    history: (id)   => req('GET',    `/habits/${id}/history`),
+  },
+  measurements: {
+    history: ()     => req('GET',    '/measurements/history'),
+    log:     (body) => req('POST',   '/measurements/log', body),
+    delete:  (id)   => req('DELETE', `/measurements/${id}`),
+  },
+  meditation: {
+    history: ()     => req('GET',    '/meditation/history'),
+    stats:   ()     => req('GET',    '/meditation/stats'),
+    log:     (body) => req('POST',   '/meditation/log', body),
+    delete:  (id)   => req('DELETE', `/meditation/${id}`),
+  },
   weight: {
     history:       ()     => req('GET',    '/weight/history'),
     log:           (body) => req('POST',   '/weight/log', body),

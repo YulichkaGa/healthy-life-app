@@ -16,6 +16,9 @@ import SettingsPage from './pages/SettingsPage'
 import AchievementsPage from './pages/AchievementsPage'
 import WeightPage from './pages/WeightPage'
 import ProfilePage from './pages/ProfilePage'
+import HabitsPage from './pages/HabitsPage'
+import MeasurementsPage from './pages/MeasurementsPage'
+import MeditationPage from './pages/MeditationPage'
 
 function App() {
   return (
@@ -40,6 +43,9 @@ function App() {
                   <Route path="/achievements" element={<AchievementsPage />} />
                   <Route path="/weight" element={<WeightPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/habits" element={<HabitsPage />} />
+                  <Route path="/measurements" element={<MeasurementsPage />} />
+                  <Route path="/meditation" element={<MeditationPage />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Layout>
