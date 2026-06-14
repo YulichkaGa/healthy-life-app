@@ -57,3 +57,15 @@ CREATE TABLE IF NOT EXISTS sleep_logs (
   notes       TEXT,
   logged_at   TEXT DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS todos (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title       TEXT NOT NULL,
+  description TEXT,
+  completed   INTEGER DEFAULT 0,
+  createdAt   TEXT DEFAULT CURRENT_TIMESTAMP,
+  updatedAt   TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_todos_user ON todos(user_id);

@@ -1,218 +1,99 @@
-const express = require('express');
-const { query } = require('../db/init');
+const router = require('express').Router()
+const auth = require('../middleware/auth')
+const { query, db } = require('../services/db')
 
-const router = express.Router();
+db.exec(`
+  CREATE TABLE IF NOT EXISTS todos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    description TEXT,
+    completed INTEGER DEFAULT 0,
+    createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE INDEX IF NOT EXISTS idx_todos_user ON todos(user_id);
+`)
 
-// GET /api/todos - Get all todos
-router.get('/todos', async (req, res, next) => {
+router.get('/todos', auth, async (req, res, next) => {
   try {
-    const todos = query('SELECT * FROM todos ORDER BY createdAt DESC');
-    res.status(200).json({ success: true, data: todos });
-  } catch (error) {
-    const err = new Error(error.message);
-    err.statusCode = 500;
-    next(err);
-  }
-});
+    const result = await query(
+      'SELECT * FROM todos WHERE user_id=$1 ORDER BY createdAt DESC',
+      [req.user.id]
+    )
+    res.json({ success: true, data: result.rows })
+  } catch (err) { next(err) }
+})
 
-// GET /api/todos/:id - Get single todo
-router.get('/todos/:id', async (req, res, next) => {
+router.get('/todos/:id', auth, async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params
+    if (isNaN(id)) return res.status(400).json({ success: false, error: 'Invalid todo ID' })
+    const result = await query(
+      'SELECT * FROM todos WHERE id=$1 AND user_id=$2',
+      [id, req.user.id]
+    )
+    if (!result.rows.length) return res.status(404).json({ success: false, error: 'Todo not found' })
+    res.json({ success: true, data: result.rows[0] })
+  } catch (err) { next(err) }
+})
 
-    // Validate ID
-    if (!id || isNaN(id)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid todo ID',
-      });
-    }
-
-    const todo = query('SELECT * FROM todos WHERE id = ?', [id]);
-
-    if (!todo || todo.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Todo not found',
-      });
-    }
-
-    res.status(200).json({ success: true, data: todo[0] });
-  } catch (error) {
-    const err = new Error(error.message);
-    err.statusCode = 500;
-    next(err);
-  }
-});
-
-// POST /api/todos - Create new todo
-router.post('/todos', async (req, res, next) => {
+router.post('/todos', auth, async (req, res, next) => {
   try {
-    const { title, description } = req.body;
+    const { title, description } = req.body
+    if (!title || typeof title !== 'string' || !title.trim())
+      return res.status(400).json({ success: false, error: 'Title is required' })
+    const result = await query(
+      'INSERT INTO todos (user_id, title, description, completed) VALUES ($1,$2,$3,0) RETURNING *',
+      [req.user.id, title.trim(), description?.trim() || null]
+    )
+    res.status(201).json({ success: true, data: result.rows[0], message: 'Todo created successfully' })
+  } catch (err) { next(err) }
+})
 
-    // Validate request body
-    if (!title || typeof title !== 'string' || title.trim().length === 0) {
-      return res.status(400).json({
-        success: false,
-        error: 'Title is required and must be a non-empty string',
-      });
-    }
-
-    // Optional: Validate description if provided
-    if (description && typeof description !== 'string') {
-      return res.status(400).json({
-        success: false,
-        error: 'Description must be a string',
-      });
-    }
-
-    const result = query(
-      'INSERT INTO todos (title, description, completed) VALUES (?, ?, ?)',
-      [title.trim(), description?.trim() || null, 0]
-    );
-
-    const newTodo = query('SELECT * FROM todos WHERE id = ?', [result.lastId]);
-
-    res.status(201).json({
-      success: true,
-      data: newTodo[0],
-      message: 'Todo created successfully',
-    });
-  } catch (error) {
-    const err = new Error(error.message);
-    err.statusCode = 500;
-    next(err);
-  }
-});
-
-// PUT /api/todos/:id - Update todo
-router.put('/todos/:id', async (req, res, next) => {
+router.put('/todos/:id', auth, async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const { title, description, completed } = req.body;
+    const { id } = req.params
+    const { title, description, completed } = req.body
+    if (isNaN(id)) return res.status(400).json({ success: false, error: 'Invalid todo ID' })
 
-    // Validate ID
-    if (!id || isNaN(id)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid todo ID',
-      });
-    }
+    const existing = await query(
+      'SELECT * FROM todos WHERE id=$1 AND user_id=$2',
+      [id, req.user.id]
+    )
+    if (!existing.rows.length) return res.status(404).json({ success: false, error: 'Todo not found' })
 
-    // Check if todo exists
-    const existingTodo = query('SELECT * FROM todos WHERE id = ?', [id]);
-    if (!existingTodo || existingTodo.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Todo not found',
-      });
-    }
+    if (title !== undefined && (typeof title !== 'string' || !title.trim()))
+      return res.status(400).json({ success: false, error: 'Title must be a non-empty string' })
+    if (completed !== undefined && typeof completed !== 'boolean')
+      return res.status(400).json({ success: false, error: 'Completed must be a boolean' })
 
-    // Validate request body - at least one field must be provided
-    if (!title && description === undefined && completed === undefined) {
-      return res.status(400).json({
-        success: false,
-        error: 'At least one field (title, description, or completed) must be provided',
-      });
-    }
+    const cur = existing.rows[0]
+    const newTitle     = title       !== undefined ? title.trim()               : cur.title
+    const newDesc      = description !== undefined ? (description?.trim() || null) : cur.description
+    const newCompleted = completed   !== undefined ? (completed ? 1 : 0)        : cur.completed
 
-    // Validate field types
-    if (title !== undefined && (typeof title !== 'string' || title.trim().length === 0)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Title must be a non-empty string',
-      });
-    }
+    const result = await query(
+      `UPDATE todos SET title=$1, description=$2, completed=$3, updatedAt=CURRENT_TIMESTAMP
+       WHERE id=$4 AND user_id=$5 RETURNING *`,
+      [newTitle, newDesc, newCompleted, id, req.user.id]
+    )
+    res.json({ success: true, data: result.rows[0], message: 'Todo updated successfully' })
+  } catch (err) { next(err) }
+})
 
-    if (description !== undefined && description !== null && typeof description !== 'string') {
-      return res.status(400).json({
-        success: false,
-        error: 'Description must be a string',
-      });
-    }
-
-    if (completed !== undefined && typeof completed !== 'boolean') {
-      return res.status(400).json({
-        success: false,
-        error: 'Completed must be a boolean',
-      });
-    }
-
-    // Build update query dynamically
-    const updates = [];
-    const params = [];
-
-    if (title !== undefined) {
-      updates.push('title = ?');
-      params.push(title.trim());
-    }
-
-    if (description !== undefined) {
-      updates.push('description = ?');
-      params.push(description ? description.trim() : null);
-    }
-
-    if (completed !== undefined) {
-      updates.push('completed = ?');
-      params.push(completed ? 1 : 0);
-    }
-
-    updates.push('updatedAt = CURRENT_TIMESTAMP');
-    params.push(id);
-
-    query(
-      `UPDATE todos SET ${updates.join(', ')} WHERE id = ?`,
-      params
-    );
-
-    const updatedTodo = query('SELECT * FROM todos WHERE id = ?', [id]);
-
-    res.status(200).json({
-      success: true,
-      data: updatedTodo[0],
-      message: 'Todo updated successfully',
-    });
-  } catch (error) {
-    const err = new Error(error.message);
-    err.statusCode = 500;
-    next(err);
-  }
-});
-
-// DELETE /api/todos/:id - Delete todo
-router.delete('/todos/:id', async (req, res, next) => {
+router.delete('/todos/:id', auth, async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params
+    if (isNaN(id)) return res.status(400).json({ success: false, error: 'Invalid todo ID' })
+    const existing = await query(
+      'SELECT id FROM todos WHERE id=$1 AND user_id=$2',
+      [id, req.user.id]
+    )
+    if (!existing.rows.length) return res.status(404).json({ success: false, error: 'Todo not found' })
+    await query('DELETE FROM todos WHERE id=$1 AND user_id=$2', [id, req.user.id])
+    res.json({ success: true, data: null, message: 'Todo deleted successfully' })
+  } catch (err) { next(err) }
+})
 
-    // Validate ID
-    if (!id || isNaN(id)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid todo ID',
-      });
-    }
-
-    // Check if todo exists
-    const existingTodo = query('SELECT * FROM todos WHERE id = ?', [id]);
-    if (!existingTodo || existingTodo.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Todo not found',
-      });
-    }
-
-    query('DELETE FROM todos WHERE id = ?', [id]);
-
-    res.status(200).json({
-      success: true,
-      data: null,
-      message: 'Todo deleted successfully',
-    });
-  } catch (error) {
-    const err = new Error(error.message);
-    err.statusCode = 500;
-    next(err);
-  }
-});
-
-module.exports = router;
+module.exports = router
