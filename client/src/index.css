@@ -172,13 +172,25 @@ body.dark {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 18px 14px;
+  padding: 18px 14px 16px;
   box-shadow: var(--shadow-sm);
   display: flex; flex-direction: column; align-items: center; gap: 10px;
-  transition: box-shadow .2s, transform .2s;
+  transition: box-shadow .2s, transform .2s, border-color .2s;
   cursor: default;
+  position: relative;
+  overflow: hidden;
 }
-.stat-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--stat-accent, #16a34a);
+  opacity: 0;
+  transition: opacity .2s;
+}
+.stat-card:hover { box-shadow: var(--shadow); transform: translateY(-3px); border-color: transparent; }
+.stat-card:hover::before { opacity: 1; }
 
 .stat-ring-wrap {
   position: relative;
@@ -217,11 +229,14 @@ body.dark {
   background: linear-gradient(135deg, #ecfdf5, #d1fae5);
   border: 1px solid #a7f3d0;
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 22px;
   margin-bottom: 18px;
+  box-shadow: var(--shadow-sm);
 }
+body.dark .insight-card { background: linear-gradient(135deg, #052e16, #064e3b); border-color: #166534; }
 .insight-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 14px; }
 .insight-card p { color: #065f46; font-size: 13.5px; line-height: 1.75; }
+body.dark .insight-card p { color: #a7f3d0; }
 
 /* ── Two column ── */
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -684,6 +699,39 @@ body.dark {
 .mb16 { margin-bottom: 16px; }
 .section { margin-top: 20px; }
 
+/* ── Mood Banner ── */
+.mood-banner {
+  border-radius: var(--radius-xl);
+  padding: 26px 28px;
+  margin-bottom: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  transition: box-shadow .25s, transform .25s;
+}
+.mood-banner:hover { box-shadow: 0 8px 30px rgba(0,0,0,.15); transform: translateY(-1px); }
+.mood-banner-content { display: flex; flex-direction: column; gap: 5px; z-index: 1; }
+.mood-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 14px; border-radius: 20px;
+  font-size: 12.5px; font-weight: 700;
+  width: fit-content; margin-bottom: 4px;
+  letter-spacing: .2px;
+}
+.mood-greeting { font-size: 24px; font-weight: 900; letter-spacing: -.6px; line-height: 1.2; }
+.mood-sub { font-size: 13px; font-weight: 500; opacity: .85; margin-top: 1px; }
+.mood-badges-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.mood-banner-icon {
+  font-size: 82px; line-height: 1;
+  opacity: .22;
+  user-select: none;
+  transition: opacity .3s, transform .35s;
+  flex-shrink: 0;
+}
+.mood-banner:hover .mood-banner-icon { opacity: .35; transform: scale(1.1) rotate(8deg); }
+
 /* ── Recharts overrides ── */
 .recharts-tooltip-wrapper { outline: none; }
 .recharts-default-tooltip { border-radius: 8px !important; border: 1px solid var(--border) !important; font-size: 12px !important; }
@@ -703,4 +751,7 @@ body.dark {
   .two-col { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: repeat(3, 1fr); }
   .mood-grid { grid-template-columns: repeat(5, 1fr); }
+  .mood-banner { padding: 20px 18px; }
+  .mood-greeting { font-size: 19px; }
+  .mood-banner-icon { font-size: 56px; }
 }

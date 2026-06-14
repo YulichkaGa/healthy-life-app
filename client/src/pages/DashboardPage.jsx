@@ -7,6 +7,67 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts'
 
+const MOODS = {
+  night: {
+    emoji: '🌙', label: 'לילה', greeting: 'לילה טוב',
+    sub: 'זמן מנוחה ושיקום הגוף',
+    bg: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #1e1b4b 100%)',
+    fg: '#e0e7ff', subFg: '#a5b4fc',
+    badgeBg: 'rgba(129,140,248,.18)', badgeBorder: '#4f46e5', badgeFg: '#c7d2fe',
+  },
+  dawn: {
+    emoji: '🌅', label: 'אור', greeting: 'בוקר אור',
+    sub: 'ההתחלה הטובה ביותר ליום',
+    bg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 35%, #fed7aa 100%)',
+    fg: '#78350f', subFg: '#92400e',
+    badgeBg: 'rgba(251,146,60,.22)', badgeBorder: '#f59e0b', badgeFg: '#78350f',
+  },
+  morning: {
+    emoji: '☀️', label: 'בוקר', greeting: 'בוקר טוב',
+    sub: 'יום פורה לפנינו',
+    bg: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 55%, #6ee7b7 100%)',
+    fg: '#064e3b', subFg: '#065f46',
+    badgeBg: 'rgba(16,185,129,.18)', badgeBorder: '#10b981', badgeFg: '#064e3b',
+  },
+}
+
+function getTimeMood() {
+  const h = new Date().getHours()
+  if (h >= 22 || h < 5) return MOODS.night
+  if (h < 9) return MOODS.dawn
+  return MOODS.morning
+}
+
+function MoodBanner({ mood, userName, streak, achievements, todayStr }) {
+  return (
+    <div className="mood-banner" style={{ background: mood.bg }}>
+      <div className="mood-banner-content">
+        <span
+          className="mood-badge"
+          style={{ background: mood.badgeBg, border: `1px solid ${mood.badgeBorder}`, color: mood.badgeFg }}
+        >
+          {mood.emoji} {mood.label}
+        </span>
+        <h2 className="mood-greeting" style={{ color: mood.fg }}>
+          {mood.greeting}, {userName} 👋
+        </h2>
+        <p className="mood-sub" style={{ color: mood.subFg }}>{todayStr}</p>
+        {(streak > 0 || achievements) && (
+          <div className="mood-badges-row">
+            {streak > 0 && <div className="streak-badge">🔥 {streak} ימי רצף</div>}
+            {achievements && (
+              <div className="streak-badge" style={{ background: '#fef9c3', color: '#854d0e' }}>
+                🏆 {achievements.earnedCount}/{achievements.total}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      <div className="mood-banner-icon">{mood.emoji}</div>
+    </div>
+  )
+}
+
 function Ring({ pct = 0, color = '#16a34a', size = 76 }) {
   const r = 27
   const c = 2 * Math.PI * r
@@ -14,7 +75,7 @@ function Ring({ pct = 0, color = '#16a34a', size = 76 }) {
   const offset = c - (p / 100) * c
   return (
     <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e8f5e9" strokeWidth="7" />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--border)" strokeWidth="7" />
       <circle
         cx={size / 2} cy={size / 2} r={r} fill="none"
         stroke={color} strokeWidth="7" strokeLinecap="round"
@@ -28,7 +89,7 @@ function Ring({ pct = 0, color = '#16a34a', size = 76 }) {
 function StatCard({ icon, label, value, unit, max, color, goal }) {
   const pct = max && value ? Math.min(100, Math.round((Number(value) / max) * 100)) : 0
   return (
-    <div className="stat-card">
+    <div className="stat-card" style={{ '--stat-accent': color }}>
       <div className="stat-ring-wrap">
         <Ring pct={pct} color={color} />
         <span className="stat-ring-icon">{icon}</span>
@@ -83,19 +144,17 @@ export default function DashboardPage() {
   if (loading) return <div className="page-loading"><div className="spinner" />טוען נתונים...</div>
 
   const todayStr = new Date().toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'long' })
+  const mood = getTimeMood()
 
   return (
     <div className="page">
-      <div className="page-header">
-        <div>
-          <h2>שלום, {user?.name?.split(' ')[0] || user?.name} 👋</h2>
-          <p className="page-subtitle">{todayStr}</p>
-        </div>
-        <div className="dashboard-badges">
-          {streak > 0 && <div className="streak-badge">🔥 {streak} ימי רצף</div>}
-          {achievements && <div className="streak-badge" style={{ background: '#fef9c3', color: '#854d0e' }}>🏆 {achievements.earnedCount}/{achievements.total}</div>}
-        </div>
-      </div>
+      <MoodBanner
+        mood={mood}
+        userName={user?.name?.split(' ')[0] || user?.name}
+        streak={streak}
+        achievements={achievements}
+        todayStr={todayStr}
+      />
 
       <div className="stats-grid">
         <StatCard icon="🔥" label="קלוריות"  value={data?.calories}    unit="קק״ל"   max={goals.calories}    goal={goals.calories}    color="#f97316" />
