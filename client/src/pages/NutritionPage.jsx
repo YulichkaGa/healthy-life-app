@@ -20,12 +20,16 @@ function ProgressBar({ label, value, max, unit, color }) {
 }
 
 export default function NutritionPage() {
-  const [meals, setMeals] = useState([])
-  const [form, setForm] = useState(EMPTY)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [analyzing, setAnalyzing] = useState(false)
-  const fileRef = useRef()
+  const [meals, setMeals]           = useState([])
+  const [form, setForm]             = useState(EMPTY)
+  const [loading, setLoading]       = useState(false)
+  const [error, setError]           = useState('')
+  const [analyzing, setAnalyzing]   = useState(false)
+  const [searchQuery, setSearchQuery]   = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [searching, setSearching]   = useState(false)
+  const fileRef     = useRef()
+  const searchTimer = useRef()
 
   useEffect(() => { load() }, [])
 
@@ -109,6 +113,38 @@ export default function NutritionPage() {
     }
   }
 
+  function handleSearchInput(e) {
+    const q = e.target.value
+    setSearchQuery(q)
+    setSearchResults([])
+    clearTimeout(searchTimer.current)
+    if (!q.trim()) return
+    searchTimer.current = setTimeout(async () => {
+      setSearching(true)
+      try {
+        const results = await api.nutrition.search(q)
+        setSearchResults(results)
+      } catch {
+        // silently ignore search errors
+      } finally {
+        setSearching(false)
+      }
+    }, 400)
+  }
+
+  function selectResult(result) {
+    setForm(f => ({
+      ...f,
+      name:     result.name,
+      calories: String(result.calories),
+      protein:  String(result.protein),
+      carbs:    String(result.carbs),
+      fat:      String(result.fat),
+    }))
+    setSearchQuery('')
+    setSearchResults([])
+  }
+
   const totals = meals.reduce(
     (accumulator, meal) => ({
       calories: accumulator.calories + Number(meal.calories || 0),
@@ -142,6 +178,28 @@ export default function NutritionPage() {
       <div className="two-col">
         <div className="card">
           <h3>➕ הוסף ארוחה</h3>
+
+          <div className="food-search-wrap">
+            <input
+              className="food-search-input"
+              value={searchQuery}
+              onChange={handleSearchInput}
+              placeholder="🔍 חפש מזון במסד נתונים..."
+            />
+            {searching && <div className="food-search-hint">מחפש...</div>}
+            {searchResults.length > 0 && (
+              <div className="food-search-results">
+                {searchResults.map((r, i) => (
+                  <button key={i} type="button" className="food-search-item" onClick={() => selectResult(r)}>
+                    <span className="food-search-name">{r.name}</span>
+                    <span className="food-search-macros">🔥{r.calories} · 🥩{r.protein}g · 🌾{r.carbs}g · 🧈{r.fat}g</span>
+                  </button>
+                ))}
+                <div className="food-search-note">ערכים לכל 100 גרם · Open Food Facts</div>
+              </div>
+            )}
+          </div>
+
           <button
             type="button" className="btn-secondary mb"
             onClick={() => fileRef.current?.click()} disabled={analyzing}

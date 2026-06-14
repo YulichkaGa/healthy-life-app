@@ -96,7 +96,29 @@ router.post('/analyze', auth, async (req, res, next) => {
 router.get('/search', auth, async (req, res, next) => {
     try {
         const { q } = req.query
-        res.json([{ name: q, calories: 200, protein: 10, carbs: 30, fat: 5 }])
+        if (!q?.trim()) return res.json([])
+
+        const url = 'https://world.openfoodfacts.org/cgi/search.pl?' +
+            `search_terms=${encodeURIComponent(q)}&json=1&action=process` +
+            `&page_size=10&fields=product_name,nutriments`
+
+        const response = await fetch(url, { signal: AbortSignal.timeout(6000) })
+        if (!response.ok) return res.json([])
+
+        const data = await response.json()
+        const results = (data.products || [])
+            .filter(p => p.product_name && p.nutriments?.['energy-kcal_100g'])
+            .map(p => ({
+                name:     p.product_name,
+                calories: Math.round(p.nutriments['energy-kcal_100g']   || 0),
+                protein:  Math.round(p.nutriments['proteins_100g']       || 0),
+                carbs:    Math.round(p.nutriments['carbohydrates_100g']  || 0),
+                fat:      Math.round(p.nutriments['fat_100g']            || 0),
+            }))
+            .filter(p => p.calories > 0)
+            .slice(0, 6)
+
+        res.json(results)
     } catch (err) { next(err) }
 })
 
