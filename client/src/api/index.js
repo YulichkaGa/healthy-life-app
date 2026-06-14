@@ -62,4 +62,7 @@ export const api = {
   achievements: {
     get: () => req('GET', '/achievements'),
   },
+  export: {
+    get: () => req('GET', '/export'),
+  },
 }

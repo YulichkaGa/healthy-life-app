@@ -551,6 +551,28 @@ body {
 .settings-input:focus { border-color: var(--green); background: white; box-shadow: 0 0 0 3px rgba(22,163,74,.1); }
 .settings-unit { font-size: 12px; color: var(--text-muted); min-width: 40px; }
 
+/* ── Export ── */
+.export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.export-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: right;
+  transition: border-color .15s, background .15s;
+  width: 100%;
+}
+.export-btn:hover:not(:disabled) { border-color: var(--green); background: var(--green-pale); }
+.export-btn:disabled { opacity: .5; cursor: not-allowed; }
+.export-icon  { font-size: 20px; flex-shrink: 0; }
+.export-label { font-size: 13.5px; font-weight: 600; flex: 1; }
+.export-count { font-size: 11px; color: var(--text-muted); }
+.export-arrow { font-size: 16px; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
 /* ── Food search ── */
 .food-search-wrap {
   position: relative;
