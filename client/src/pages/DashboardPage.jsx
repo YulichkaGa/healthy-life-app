@@ -51,6 +51,7 @@ export default function DashboardPage() {
   const [streak, setStreak] = useState(0)
   const [insight, setInsight] = useState('')
   const [weekly, setWeekly] = useState([])
+  const [goals, setGoals] = useState({ calories: 2000, protein: 120, water: 8, steps: 10000, sleep_hours: 8 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -59,10 +60,12 @@ export default function DashboardPage() {
       api.dashboard.streak(),
       api.ai.insight(),
       api.dashboard.weekly(),
-    ]).then(([tod, s, ins, w]) => {
+      api.goals.get(),
+    ]).then(([tod, s, ins, w, g]) => {
       if (tod.status === 'fulfilled') setData(tod.value)
       if (s.status === 'fulfilled')   setStreak(s.value.streak)
       if (ins.status === 'fulfilled') setInsight(ins.value.insight)
+      if (g.status === 'fulfilled')   setGoals(prev => ({ ...prev, ...g.value }))
       if (w.status === 'fulfilled')
         setWeekly(w.value.map(record => ({
           day: dayLabel(record.log_date),
@@ -89,12 +92,12 @@ export default function DashboardPage() {
       </div>
 
       <div className="stats-grid">
-        <StatCard icon="🔥" label="קלוריות"  value={data?.calories}    unit="קק״ל"   max={2000}  goal={2000}  color="#f97316" />
-        <StatCard icon="🥩" label="חלבון"    value={data?.protein}     unit="גרם"    max={120}   goal={120}   color="#a855f7" />
-        <StatCard icon="💧" label="מים"      value={data?.water}       unit="כוסות"  max={8}     goal={8}     color="#3b82f6" />
-        <StatCard icon="👟" label="צעדים"    value={data?.steps}       unit=""       max={10000} goal={10000} color="#22c55e" />
-        <StatCard icon="😴" label="שינה"     value={data?.sleep_hours} unit="שעות"   max={8}     goal={8}     color="#6366f1" />
-        <StatCard icon="😊" label="מצב רוח"  value={data?.mood}        unit="/5"     max={5}                  color="#ec4899" />
+        <StatCard icon="🔥" label="קלוריות"  value={data?.calories}    unit="קק״ל"   max={goals.calories}    goal={goals.calories}    color="#f97316" />
+        <StatCard icon="🥩" label="חלבון"    value={data?.protein}     unit="גרם"    max={goals.protein}     goal={goals.protein}     color="#a855f7" />
+        <StatCard icon="💧" label="מים"      value={data?.water}       unit="כוסות"  max={goals.water}       goal={goals.water}       color="#3b82f6" />
+        <StatCard icon="👟" label="צעדים"    value={data?.steps}       unit=""       max={goals.steps}       goal={goals.steps}       color="#22c55e" />
+        <StatCard icon="😴" label="שינה"     value={data?.sleep_hours} unit="שעות"   max={goals.sleep_hours} goal={goals.sleep_hours} color="#6366f1" />
+        <StatCard icon="😊" label="מצב רוח"  value={data?.mood}        unit="/5"     max={5}                                          color="#ec4899" />
       </div>
 
       {weekly.length > 1 && (

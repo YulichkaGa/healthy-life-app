@@ -10,6 +10,7 @@ const moodRoutes      = require('./routes/mood')
 const aiRoutes        = require('./routes/ai')
 const dashboardRoutes = require('./routes/dashboard')
 const todosRoutes     = require('./routes/todos')
+const goalsRoutes     = require('./routes/goals')
 
 const app = express()
 
@@ -27,6 +28,7 @@ app.use('/api/mood',      moodRoutes)
 app.use('/api/ai',        aiRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api',           todosRoutes)
+app.use('/api/goals',     goalsRoutes)
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }))
 

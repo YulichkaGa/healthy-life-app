@@ -495,6 +495,36 @@ body {
 }
 .empty-icon { font-size: 38px; opacity: .5; }
 
+/* ── Settings / Goals ── */
+.settings-wrap { max-width: 520px; }
+.settings-form { display: flex; flex-direction: column; gap: 6px; }
+.settings-section-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.settings-row:last-of-type { border-bottom: none; }
+.settings-label { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 500; }
+.settings-icon { font-size: 18px; width: 26px; text-align: center; }
+.settings-input-wrap { display: flex; align-items: center; gap: 6px; }
+.settings-input {
+  width: 90px;
+  padding: 6px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+}
+.settings-input:focus { border-color: var(--green); background: white; box-shadow: 0 0 0 3px rgba(22,163,74,.1); }
+.settings-unit { font-size: 12px; color: var(--text-muted); min-width: 40px; }
+
 /* ── Food search ── */
 .food-search-wrap {
   position: relative;

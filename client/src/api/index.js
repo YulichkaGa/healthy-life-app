@@ -55,4 +55,8 @@ export const api = {
     weekly: () => req('GET', '/dashboard/weekly'),
     streak: () => req('GET', '/dashboard/streak'),
   },
+  goals: {
+    get:    ()     => req('GET', '/goals'),
+    update: (body) => req('PUT', '/goals', body),
+  },
 }

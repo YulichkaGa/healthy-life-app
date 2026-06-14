@@ -23,8 +23,12 @@ export default function SleepPage() {
   const [form, setForm]       = useState(EMPTY)
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
+  const [sleepGoal, setSleepGoal] = useState(8)
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    api.goals.get().then(g => { if (g.sleep_hours) setSleepGoal(g.sleep_hours) }).catch(() => {})
+  }, [])
 
   async function load() {
     try {
@@ -136,7 +140,7 @@ export default function SleepPage() {
                   <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                   <YAxis domain={[0, 10]} tick={{ fontSize: 11 }} />
                   <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }} />
-                  <ReferenceLine y={8} stroke="#6366f1" strokeDasharray="4 2" strokeWidth={1.5} label={{ value: 'יעד 8ש', position: 'right', fontSize: 10, fill: '#6366f1' }} />
+                  <ReferenceLine y={sleepGoal} stroke="#6366f1" strokeDasharray="4 2" strokeWidth={1.5} label={{ value: `יעד ${sleepGoal}ש`, position: 'right', fontSize: 10, fill: '#6366f1' }} />
                   <Bar dataKey="duration" fill="#6366f1" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>

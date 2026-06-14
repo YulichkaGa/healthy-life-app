@@ -11,6 +11,7 @@ import SleepPage from './pages/SleepPage'
 import MoodPage from './pages/MoodPage'
 import AIChatPage from './pages/AIChatPage'
 import TodoPage from './pages/TodoPage'
+import SettingsPage from './pages/SettingsPage'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
                   <Route path="/mood" element={<MoodPage />} />
                   <Route path="/ai" element={<AIChatPage />} />
                   <Route path="/todos" element={<TodoPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Layout>

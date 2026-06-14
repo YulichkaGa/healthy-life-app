@@ -28,10 +28,14 @@ export default function NutritionPage() {
   const [searchQuery, setSearchQuery]   = useState('')
   const [searchResults, setSearchResults] = useState([])
   const [searching, setSearching]   = useState(false)
+  const [goals, setGoals]           = useState({ calories: 2000, protein: 120, carbs: 250 })
   const fileRef     = useRef()
   const searchTimer = useRef()
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    api.goals.get().then(g => setGoals(prev => ({ ...prev, ...g }))).catch(() => {})
+  }, [])
 
   async function load() {
     try {
@@ -169,9 +173,9 @@ export default function NutritionPage() {
 
       {meals.length > 0 && (
         <div className="card mb16">
-          <ProgressBar label="קלוריות" value={totals.calories} max={2000} unit="קק״ל" color="#f97316" />
-          <ProgressBar label="חלבון"   value={totals.protein}  max={120}  unit="גרם"  color="#a855f7" />
-          <ProgressBar label="פחמימות" value={totals.carbs}    max={250}  unit="גרם"  color="#22c55e" />
+          <ProgressBar label="קלוריות" value={totals.calories} max={goals.calories} unit="קק״ל" color="#f97316" />
+          <ProgressBar label="חלבון"   value={totals.protein}  max={goals.protein}  unit="גרם"  color="#a855f7" />
+          <ProgressBar label="פחמימות" value={totals.carbs}    max={goals.carbs}    unit="גרם"  color="#22c55e" />
         </div>
       )}
 

@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { api } from '../api'
 
 const EMPTY = { name: '', duration: '', calories: '', notes: '' }
-const MAX_WATER = 8
 
 export default function FitnessPage() {
   const [workouts, setWorkouts]     = useState([])
@@ -13,8 +12,12 @@ export default function FitnessPage() {
   const [loading, setLoading]       = useState(false)
   const [stepsLoading, setStepsLoading] = useState(false)
   const [error, setError]           = useState('')
+  const [goals, setGoals]           = useState({ water: 8, steps: 10000 })
 
-  useEffect(() => { loadAll() }, [])
+  useEffect(() => {
+    loadAll()
+    api.goals.get().then(g => setGoals(prev => ({ ...prev, ...g }))).catch(() => {})
+  }, [])
 
   async function loadAll() {
     try {
@@ -106,7 +109,7 @@ export default function FitnessPage() {
         <div className="card">
           <h3>💧 מעקב מים</h3>
           <div className="water-glasses">
-            {Array.from({ length: MAX_WATER }, (_, i) => i + 1).map(n => (
+            {Array.from({ length: goals.water }, (_, i) => i + 1).map(n => (
               <button
                 key={n}
                 className={`water-glass${water >= n ? ' filled' : ''}`}
@@ -117,7 +120,7 @@ export default function FitnessPage() {
               </button>
             ))}
           </div>
-          <p className="water-label">{water} / {MAX_WATER} כוסות שתית היום</p>
+          <p className="water-label">{water} / {goals.water} כוסות שתית היום</p>
         </div>
 
         <div className="card">
