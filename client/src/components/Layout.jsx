@@ -8,7 +8,8 @@ const NAV = [
   { to: '/sleep',     icon: '😴', label: 'שינה' },
   { to: '/mood',      icon: '😊', label: 'מצב רוח' },
   { to: '/ai',        icon: '🤖', label: 'AI Coach' },
-  { to: '/settings',  icon: '⚙️', label: 'יעדים' },
+  { to: '/achievements', icon: '🏆', label: 'הישגים' },
+  { to: '/settings',    icon: '⚙️', label: 'יעדים' },
 ]
 
 export default function Layout({ children }) {

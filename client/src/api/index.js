@@ -59,4 +59,7 @@ export const api = {
     get:    ()     => req('GET', '/goals'),
     update: (body) => req('PUT', '/goals', body),
   },
+  achievements: {
+    get: () => req('GET', '/achievements'),
+  },
 }

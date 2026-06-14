@@ -495,6 +495,32 @@ body {
 }
 .empty-icon { font-size: 38px; opacity: .5; }
 
+/* ── Achievements ── */
+.achieve-progress-wrap { padding: 16px 20px; }
+.achieve-progress-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); }
+.achieve-group { margin-bottom: 24px; }
+.achieve-group-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+.achieve-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.achieve-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  position: relative;
+  transition: box-shadow .15s;
+}
+.achieve-card.earned { border-color: #bbf7d0; background: #f0fdf4; box-shadow: var(--shadow-xs); }
+.achieve-card.locked { opacity: .55; }
+.achieve-icon { font-size: 26px; flex-shrink: 0; width: 36px; text-align: center; }
+.achieve-info { flex: 1; min-width: 0; }
+.achieve-title { font-size: 13.5px; font-weight: 700; color: var(--text); }
+.achieve-desc  { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.achieve-check { font-size: 14px; font-weight: 800; color: var(--green); flex-shrink: 0; }
+.dashboard-badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
 /* ── Settings / Goals ── */
 .settings-wrap { max-width: 520px; }
 .settings-form { display: flex; flex-direction: column; gap: 6px; }

@@ -52,6 +52,7 @@ export default function DashboardPage() {
   const [insight, setInsight] = useState('')
   const [weekly, setWeekly] = useState([])
   const [goals, setGoals] = useState({ calories: 2000, protein: 120, water: 8, steps: 10000, sleep_hours: 8 })
+  const [achievements, setAchievements] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -61,11 +62,13 @@ export default function DashboardPage() {
       api.ai.insight(),
       api.dashboard.weekly(),
       api.goals.get(),
-    ]).then(([tod, s, ins, w, g]) => {
+      api.achievements.get(),
+    ]).then(([tod, s, ins, w, g, ach]) => {
       if (tod.status === 'fulfilled') setData(tod.value)
       if (s.status === 'fulfilled')   setStreak(s.value.streak)
       if (ins.status === 'fulfilled') setInsight(ins.value.insight)
       if (g.status === 'fulfilled')   setGoals(prev => ({ ...prev, ...g.value }))
+      if (ach.status === 'fulfilled') setAchievements(ach.value)
       if (w.status === 'fulfilled')
         setWeekly(w.value.map(record => ({
           day: dayLabel(record.log_date),
@@ -88,7 +91,10 @@ export default function DashboardPage() {
           <h2>שלום, {user?.name?.split(' ')[0] || user?.name} 👋</h2>
           <p className="page-subtitle">{todayStr}</p>
         </div>
-        {streak > 0 && <div className="streak-badge">🔥 {streak} ימי רצף</div>}
+        <div className="dashboard-badges">
+          {streak > 0 && <div className="streak-badge">🔥 {streak} ימי רצף</div>}
+          {achievements && <div className="streak-badge" style={{ background: '#fef9c3', color: '#854d0e' }}>🏆 {achievements.earnedCount}/{achievements.total}</div>}
+        </div>
       </div>
 
       <div className="stats-grid">
